@@ -1,0 +1,19 @@
+---
+
+- name: Join Domain
+  command: realm join "{{ ipa_autojoin_domain }}"
+  register: realm_join_result
+  
+- name: Disable NTPd
+  service:
+    name: "{{ ipa_autojoin_ntp_service_name }}"
+    status: stopped
+    enabled: no
+  when: realm_join_result.rc == 0
+      
+- name: Enable Chronyd
+  service:
+    name: "{{ chrony_service_name }}"
+    status: started
+    enabled: yes
+  when: realm_join_result.rc == 0

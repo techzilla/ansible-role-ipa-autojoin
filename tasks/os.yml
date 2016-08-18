@@ -1,0 +1,20 @@
+---
+
+
+- name: Install Packages
+    yum: 
+      name: "{{ item }}"
+      state: present
+    with_items:
+      - "realmd"
+      - "ipa-client"
+    when: ansible_os_family == 'RedHat' and ansible_lsb.major_release | int > 6
+
+  - name: Install Packages
+    yum: 
+      name: "{{ item }}"
+      state: present
+    with_items:
+      - "realmd"
+      - "freeipa-client"
+    when: ansible_os_family == 'Debian'
