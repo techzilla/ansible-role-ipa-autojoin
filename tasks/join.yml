@@ -1,19 +1,27 @@
 ---
 
+- name: List Domain
+  command: realm list
+  ignore_errors: yes
+  changed_when: false
+  register: realm_list_result
+  
 - name: Join Domain
   command: realm join "{{ ipa_autojoin_domain }}"
   register: realm_join_result
+  when: realm_list_result.stdout == ""
+
   
 - name: Disable NTPd
   service:
     name: "{{ ipa_autojoin_ntp_service_name }}"
     status: stopped
     enabled: no
-  when: realm_join_result.rc == 0
+  when: realm_join_result.changed
       
 - name: Enable Chronyd
   service:
     name: "{{ chrony_service_name }}"
     status: started
     enabled: yes
-  when: realm_join_result.rc == 0
+  when: realm_join_result.changed
