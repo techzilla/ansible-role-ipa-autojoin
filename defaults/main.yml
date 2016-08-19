@@ -1,4 +1,5 @@
 ---
 
-
+ipa_autojoin_user: "admin"
+ipa_autojoin_pass: ""
 ipa_autojoin_domain: "{{ ansible_domain }}"

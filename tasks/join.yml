@@ -7,21 +7,25 @@
   register: realm_list_result
   
 - name: Join Domain
-  command: realm join "{{ ipa_autojoin_domain }}"
-  register: realm_join_result
-  when: realm_list_result.stdout == ""
+  shell: "echo \"{{ ipa_autojoin_pass | quote }}\" | realm join -U \"{{ ipa_autojoin_user | quote }}\" \"{{ ipa_autojoin_domain  | quote }}\""
+  when: realm_list_result.stdout == "" and ipa_autojoin_pass != ""
 
+- name: List Domain
+  command: realm list
+  ignore_errors: yes
+  changed_when: false
+  register: realm_list_result
   
 - name: Disable NTPd
   service:
     name: "{{ ipa_autojoin_ntp_service_name }}"
-    status: stopped
+    state: stopped
     enabled: no
-  when: realm_join_result.changed
+  when: realm_list_result.stdout != ""
       
 - name: Enable Chronyd
   service:
     name: "{{ chrony_service_name }}"
-    status: started
+    state: started
     enabled: yes
-  when: realm_join_result.changed
+  when: realm_list_result.stdout != ""
